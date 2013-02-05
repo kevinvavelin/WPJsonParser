@@ -34,6 +34,47 @@
 @synthesize postID = _postID;
 
 // Init With Command
+-(id)init
+{
+    self = [super init];
+    if(self)
+    {
+        self.article = [[NSDictionary alloc] init];
+        self.post = [[NSArray alloc] init];
+        self.postID = [[NSMutableArray alloc] init];
+        self.json = [[NSDictionary alloc] init];
+        self.category = [[NSMutableArray alloc] init];
+        self.categoryID = [[NSMutableArray alloc] init];
+        self.categoryPosts = [[NSArray alloc] init];
+        self.commentArray = [[NSArray alloc] init];
+        self.contentOfPost = [[NSMutableArray alloc] init];
+    }
+    return self;
+}
+
+-(void)dealloc
+{
+    [self.article release];
+    [self.post release];
+    [self.postID release];
+    [self.json release];
+    [self.category release];
+    [self.categoryID release];
+    [self.categoryPosts release];
+    [self.commentArray release];
+    [self.url release];
+    [self.urlImage release];
+    [self.urlSite release];
+    [self.urlVideo release];
+    [self.titlePost release];
+    [self.name release];
+    [self.mail release];
+    [self.content release];
+    [self.contentOfPost release];
+    [self.authorPost release];
+    [self.descriptionArticle release];
+    [super dealloc];
+}
 
 -(id)initWithCommand:(NSString *)command ofURL:(NSString *)url
 {
@@ -41,16 +82,16 @@
     self.urlSite = url;
     self.json = [NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:self.url]] options:NSJSONReadingAllowFragments error:nil];
     self.contentOfPost = [NSMutableArray array];
-//    if([command isEqualToString:kJSONParserCommandCategory])
-//    {
-//        [self getCategoryOfURL:url];
-//    }
-//    if([command isEqualToString:kJSONParserCommandRecentPost
-//        ])
-//    {
-//        self.post = [self.json objectForKey:@"posts"];
-//        self.article = [self.post objectAtIndex:0];
-//    }
+    if([command isEqualToString:kJSONParserCommandCategory])
+    {
+        [self getCategoryOfURL:url];
+    }
+    if([command isEqualToString:kJSONParserCommandRecentPost
+        ])
+    {
+        self.post = [self.json objectForKey:@"posts"];
+        self.article = [self.post objectAtIndex:0];
+    }
     return self;
 
 }
