@@ -22,10 +22,13 @@
 // Array of category
 @property(nonatomic, retain) NSMutableArray *category;
 
+// Content of post
 @property(nonatomic, retain) NSMutableArray *contentOfPost;
 
+// Id of category
 @property(nonatomic, retain) NSMutableArray *categoryID;
 
+// Post in category
 @property(nonatomic, retain) NSArray *categoryPosts;
 
 // Property of post
@@ -47,10 +50,13 @@
 // Title of post
 @property(nonatomic, retain) NSString *titlePost;
 
+// Id of post
 @property(nonatomic, retain) NSMutableArray *postID;
 
+// Array of comment
 @property(nonatomic, retain) NSArray *commentArray;
 
+// Article description
 @property(nonatomic, retain) NSString *descriptionArticle;
 
 
@@ -75,7 +81,7 @@
 -(NSString *)getContentOfPost:(NSInteger)index;
 -(NSString *)getAuthorOfPost;
 -(NSString *)getTitlePost;
--(NSString *)getDescription;
+-(NSArray *)getDescription;
 
 -(NSArray *)getCommentOfPost;
 

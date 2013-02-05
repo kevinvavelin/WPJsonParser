@@ -129,6 +129,8 @@
     return self.urlImage;
 }
 
+// If your article contain some video, this method will get it
+
 -(NSString *)getURLVideoArticle:(NSInteger)idArticle
 {
     NSDictionary *postOfVideo = [self.post objectAtIndex:idArticle];
@@ -190,16 +192,22 @@
 
 // Return description
 
--(NSString *)getDescription
+-(NSArray *)getDescription
 {
-    self.descriptionArticle = [self.article objectForKey:@"excerpt"];
-    NSString *regexStr = @"<a ([^>]+)>([^>]+)</a>";
-    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:regexStr options:NSRegularExpressionCaseInsensitive error:nil];
-    self.descriptionArticle = [regex stringByReplacingMatchesInString:self.descriptionArticle options:0 range:NSMakeRange(0, [self.descriptionArticle length]) withTemplate:@"$2"];
-    NSString *textWithoutStrong = [self.descriptionArticle stringByReplacingOccurrencesOfString:@"<strong>" withString:@""];
-    NSString *textWithoutStrongEnd = [textWithoutStrong stringByReplacingOccurrencesOfString:@"</strong>" withString:@""];
-    self.descriptionArticle = textWithoutStrongEnd;
-    return self.descriptionArticle;
+    NSMutableArray *arrayOfDescription = [[NSMutableArray alloc] init];
+    for(int i = 0; i < [self.post count]; i++)
+    {
+        self.article = [self.post objectAtIndex:i];
+        self.descriptionArticle = [self.article objectForKey:@"excerpt"];
+        NSString *regexStr = @"<a ([^>]+)>([^>]+)</a>";
+        NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:regexStr options:NSRegularExpressionCaseInsensitive error:nil];
+        self.descriptionArticle = [regex stringByReplacingMatchesInString:self.descriptionArticle options:0 range:NSMakeRange(0, [self.descriptionArticle length]) withTemplate:@"$2"];
+        NSString *textWithoutStrong = [self.descriptionArticle stringByReplacingOccurrencesOfString:@"<strong>" withString:@""];
+        NSString *textWithoutStrongEnd = [textWithoutStrong stringByReplacingOccurrencesOfString:@"</strong>" withString:@""];
+        self.descriptionArticle = textWithoutStrongEnd;
+        [arrayOfDescription addObject:self.descriptionArticle];
+    }
+    return arrayOfDescription;
 }
 
 // Get comment
