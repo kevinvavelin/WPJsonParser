@@ -18,6 +18,7 @@
 		13DD8AA3169B8271000E2C50 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 13DD8AA2169B8271000E2C50 /* Default-568h@2x.png */; };
 		13DD8AA6169B8271000E2C50 /* MainStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 13DD8AA4169B8271000E2C50 /* MainStoryboard.storyboard */; };
 		13DD8AA9169B8271000E2C50 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 13DD8AA8169B8271000E2C50 /* ViewController.m */; };
+		13DD8AB1169B82A8000E2C50 /* WPJsonParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 13DD8AB0169B82A8000E2C50 /* WPJsonParser.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -37,6 +38,8 @@
 		13DD8AA5169B8271000E2C50 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard.storyboard; sourceTree = "<group>"; };
 		13DD8AA7169B8271000E2C50 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		13DD8AA8169B8271000E2C50 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		13DD8AAF169B82A8000E2C50 /* WPJsonParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WPJsonParser.h; sourceTree = "<group>"; };
+		13DD8AB0169B82A8000E2C50 /* WPJsonParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WPJsonParser.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,6 +91,8 @@
 				13DD8AA4169B8271000E2C50 /* MainStoryboard.storyboard */,
 				13DD8AA7169B8271000E2C50 /* ViewController.h */,
 				13DD8AA8169B8271000E2C50 /* ViewController.m */,
+				13DD8AAF169B82A8000E2C50 /* WPJsonParser.h */,
+				13DD8AB0169B82A8000E2C50 /* WPJsonParser.m */,
 				13DD8A93169B8271000E2C50 /* Supporting Files */,
 			);
 			path = WPJsonParser;
@@ -176,6 +181,7 @@
 				13DD8A99169B8271000E2C50 /* main.m in Sources */,
 				13DD8A9D169B8271000E2C50 /* AppDelegate.m in Sources */,
 				13DD8AA9169B8271000E2C50 /* ViewController.m in Sources */,
+				13DD8AB1169B82A8000E2C50 /* WPJsonParser.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
