@@ -33,6 +33,8 @@
 @synthesize urlVideo = _urlVideo;
 @synthesize postID = _postID;
 
+// Init With Command
+
 -(id)initWithCommand:(NSString *)command ofURL:(NSString *)url
 {
     self.url = [NSString stringWithFormat:@"http://%@/api/%@/", url, command];
@@ -52,6 +54,8 @@
 
 }
 
+// Return an array with recent post of your URL
+
 -(NSArray *)getRecentPostOfURL:(NSString *)url withCount:(NSInteger)count
 {
     self.urlSite = url;
@@ -60,6 +64,8 @@
     self.post = [self.json objectForKey:@"posts"];
     return self.post;
 }
+
+// Return all category from your URL
 
 -(NSMutableArray *)getCategoryOfURL:(NSString *)url
 {
@@ -81,12 +87,16 @@
     return self.category;
 }
 
+// Get all post from category, you have to get ID Category for this
+
 -(NSArray *)getPostOfCategory:(NSInteger)idCategory
 {
     self.json = [NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://%@/api/get_category_posts/?id=%i", self.urlSite, idCategory]]] options:NSJSONReadingAllowFragments error:nil];
     self.categoryPosts = [self.json objectForKey:@"posts"];
     return self.categoryPosts;
 }
+
+// Return an array of post ID
 
 -(NSMutableArray *)getID
 {
@@ -98,11 +108,15 @@
     return self.postID;
 }
 
+// Get your post
+
 -(NSDictionary *)getPost:(NSArray *)arrayOfPost atIndex:(NSInteger)index
 {
     self.article = [arrayOfPost objectAtIndex:index];
     return self.article;
 }
+
+// Get image Thumbnail in 110x110
 
 -(NSString *)getURLImageThumbnailOfPost:(NSInteger)idArticle
 {
@@ -128,6 +142,8 @@
     return self.urlVideo;
 }
 
+// Return URL of your post
+
 -(NSString *)getURLPost
 {
    return [self.article objectForKey:@"url"];
@@ -146,12 +162,16 @@
     return self.contentOfPost;
 }
 
+// Return the content of your post
+
 -(NSString *)getContentOfPost:(NSInteger)index
 {
     [self getPostContent];
     NSString *content = [self.contentOfPost objectAtIndex:index];
     return content;
 }
+
+// Return the author
 
 -(NSString *)getAuthorOfPost
 {
@@ -160,11 +180,15 @@
     return self.authorPost;
 }
 
+// Return title of post
+
 -(NSString *)getTitlePost
 {
     self.authorPost = [self.article objectForKey:@"title"];
     return self.authorPost;
 }
+
+// Return description
 
 -(NSString *)getDescription
 {
@@ -178,11 +202,15 @@
     return self.descriptionArticle;
 }
 
+// Get comment
+
 -(NSArray *)getCommentOfPost
 {
     self.commentArray = [self.article objectForKey:@"comments"];
     return self.commentArray;
 }
+
+// TO DO 
 
 -(void)postCommentWithName:(NSString *)author mail:(NSString *)email content:(NSString *)content host:(NSString *)url id:(NSInteger)index
 {
