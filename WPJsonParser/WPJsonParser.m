@@ -38,18 +38,19 @@
 -(id)initWithCommand:(NSString *)command ofURL:(NSString *)url
 {
     self.url = [NSString stringWithFormat:@"http://%@/api/%@/", url, command];
+    self.urlSite = url;
     self.json = [NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:self.url]] options:NSJSONReadingAllowFragments error:nil];
     self.contentOfPost = [NSMutableArray array];
-    if([command isEqualToString:kJSONParserCommandCategory])
-    {
-        [self getCategoryOfURL:url];
-    }
-    if([command isEqualToString:kJSONParserCommandRecentPost
-        ])
-    {
-        self.post = [self.json objectForKey:@"posts"];
-        self.article = [self.post objectAtIndex:0];
-    }
+//    if([command isEqualToString:kJSONParserCommandCategory])
+//    {
+//        [self getCategoryOfURL:url];
+//    }
+//    if([command isEqualToString:kJSONParserCommandRecentPost
+//        ])
+//    {
+//        self.post = [self.json objectForKey:@"posts"];
+//        self.article = [self.post objectAtIndex:0];
+//    }
     return self;
 
 }
@@ -91,6 +92,7 @@
 
 -(NSArray *)getPostOfCategory:(NSInteger)idCategory
 {
+    NSLog(@"%@", self.urlSite);
     self.json = [NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://%@/api/get_category_posts/?id=%i", self.urlSite, idCategory]]] options:NSJSONReadingAllowFragments error:nil];
     self.categoryPosts = [self.json objectForKey:@"posts"];
     return self.categoryPosts;
@@ -220,12 +222,12 @@
 
 // TO DO 
 
--(void)postCommentWithName:(NSString *)author mail:(NSString *)email content:(NSString *)content host:(NSString *)url id:(NSInteger)index
-{
-    NSInteger idPost = [[self.postID objectAtIndex:index] integerValue];
-    NSURL *urlString = [NSURL URLWithString:[NSString stringWithFormat:@"http://%@/api/submit_comment?post_id=%i?name=%@?email=%@,content=%@", url, idPost, author, email, content]];
-    NSURLRequest *postComment = [NSURLRequest requestWithURL:urlString];
-    NSURLConnection *connect = [NSURLConnection connectionWithRequest:postComment delegate:self];
-}
+//-(void)postCommentWithName:(NSString *)author mail:(NSString *)email content:(NSString *)content host:(NSString *)url id:(NSInteger)index
+//{
+//    NSInteger idPost = [[self.postID objectAtIndex:index] integerValue];
+//    NSURL *urlString = [NSURL URLWithString:[NSString stringWithFormat:@"http://%@/api/submit_comment?post_id=%i?name=%@?email=%@,content=%@", url, idPost, author, email, content]];
+//    NSURLRequest *postComment = [NSURLRequest requestWithURL:urlString];
+//    NSURLConnection *connect = [NSURLConnection connectionWithRequest:postComment delegate:self];
+//}
 
 @end

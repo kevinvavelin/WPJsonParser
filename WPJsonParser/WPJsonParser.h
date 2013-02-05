@@ -46,7 +46,6 @@
 // Author of post
 @property(nonatomic, retain) NSString *authorPost;
 
-
 // Title of post
 @property(nonatomic, retain) NSString *titlePost;
 
@@ -61,7 +60,6 @@
 
 
 // parameters for comment post
-
 @property(nonatomic, retain) NSString *name;
 @property(nonatomic, retain) NSString *mail;
 @property(nonatomic, retain) NSString *content;
@@ -70,6 +68,7 @@
 
 -(NSArray *)getRecentPostOfURL:(NSString *)url withCount:(NSInteger)count;
 -(NSMutableArray *)getCategoryOfURL:(NSString *)url;
+-(NSArray *)getPostOfCategory:(NSInteger)idCategory;
 -(NSMutableArray *)getPostContent;
 -(NSMutableArray *)getID;
 -(NSDictionary *)getPost:(NSArray *)arrayOfPost atIndex:(NSInteger)index;

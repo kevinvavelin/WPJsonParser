@@ -21,8 +21,8 @@
 	// Do any additional setup after loading the view, typically from a nib.
     self.scrollView.contentSize = CGSizeMake(self.view.frame.size.width, self.logLabel.frame.size.height);
     WPJsonParser *json = [[WPJsonParser alloc] initWithCommand:@"get_recent_posts" ofURL:@"www.spi0n.com"];
-    NSString *content = [[json getDescription] objectAtIndex:3];
-    self.logLabel.text = content;
+    post = [json getPostOfCategory:1034];
+    self.logLabel.text = [NSString stringWithFormat:@"%@",[post objectAtIndex:0]];
 }
 
 - (void)didReceiveMemoryWarning
