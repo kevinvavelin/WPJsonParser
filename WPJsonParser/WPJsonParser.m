@@ -25,62 +25,13 @@
 
 @implementation WPJsonParser
 
-@synthesize url = _url;
-@synthesize json = _json;
-@synthesize post = _post;
-@synthesize article = _article;
-@synthesize urlImage = _urlImage;
-@synthesize urlVideo = _urlVideo;
-@synthesize postID = _postID;
-
 // Init With Command
--(id)init
-{
-    self = [super init];
-    if(self)
-    {
-        self.article = [[NSDictionary alloc] init];
-        self.post = [[NSArray alloc] init];
-        self.postID = [[NSMutableArray alloc] init];
-        self.json = [[NSDictionary alloc] init];
-        self.category = [[NSMutableArray alloc] init];
-        self.categoryID = [[NSMutableArray alloc] init];
-        self.categoryPosts = [[NSArray alloc] init];
-        self.commentArray = [[NSArray alloc] init];
-        self.contentOfPost = [[NSMutableArray alloc] init];
-    }
-    return self;
-}
-
--(void)dealloc
-{
-    [self.article release];
-    [self.post release];
-    [self.postID release];
-    [self.json release];
-    [self.category release];
-    [self.categoryID release];
-    [self.categoryPosts release];
-    [self.commentArray release];
-    [self.url release];
-    [self.urlImage release];
-    [self.urlSite release];
-    [self.urlVideo release];
-    [self.titlePost release];
-    [self.name release];
-    [self.mail release];
-    [self.content release];
-    [self.contentOfPost release];
-    [self.authorPost release];
-    [self.descriptionArticle release];
-    [super dealloc];
-}
 
 -(id)initWithCommand:(NSString *)command ofURL:(NSString *)url
 {
     self.url = [NSString stringWithFormat:@"http://%@/api/%@/", url, command];
     self.urlSite = url;
-    self.json = [NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:self.url]] options:NSJSONReadingAllowFragments error:nil];
+    self.json = [NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:self.url] options:NSUTF8StringEncoding error:nil] options:NSJSONReadingAllowFragments error:nil];
     self.contentOfPost = [NSMutableArray array];
     if([command isEqualToString:kJSONParserCommandCategory])
     {
@@ -90,11 +41,24 @@
         ])
     {
         self.post = [self.json objectForKey:@"posts"];
-        self.article = [self.post objectAtIndex:0];
     }
     return self;
-
 }
+
+-(id)initWithURL:(NSString *)url
+{
+    self.urlSite = url;
+    [self getCategoryOfURL:url];
+    return self;
+}
+
+//#pragma mark NSURLConnection Delegate
+//-(void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
+//{
+//    NSString *message = [NSString stringWithFormat:@"Le serveur ne répond pas. Erreur %@", error];
+//    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Connexion impossible" message:message delegate:self cancelButtonTitle:@"Fermer" otherButtonTitles:nil, nil];
+//    [alert show];
+//}
 
 // Return an array with recent post of your URL
 
@@ -106,11 +70,11 @@
     self.post = [self.json objectForKey:@"posts"];
     return self.post;
 }
-
 // Return all category from your URL
 
 -(NSMutableArray *)getCategoryOfURL:(NSString *)url
 {
+    self.urlSite = url;
     self.json = [NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://%@/api/%@",url, kJSONParserCommandGetIndex]]] options:0 error:nil];
     NSArray *categoryInfos = [self.json objectForKey:@"categories"];
     self.category = [[NSMutableArray alloc] init];
@@ -126,19 +90,35 @@
         [self.category addObject:finalString];
         [self.categoryID addObject:idCategoryString];
     }
+    self.categoryDic = [[NSDictionary alloc] initWithObjects:self.categoryID forKeys:self.category];
     return self.category;
 }
 
 // Get all post from category, you have to get ID Category for this
 
--(NSArray *)getPostOfCategory:(NSInteger)idCategory
+-(NSArray *)getPostOfCategory:(NSString *)idCategory
 {
-    NSLog(@"%@", self.urlSite);
-    self.json = [NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://%@/api/get_category_posts/?id=%i", self.urlSite, idCategory]]] options:NSJSONReadingAllowFragments error:nil];
+    self.json = [NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://%@/api/get_category_posts/?id=%@", self.urlSite, idCategory]]] options:NSJSONReadingAllowFragments error:nil];
     self.categoryPosts = [self.json objectForKey:@"posts"];
+    self.categoryTitlePost = [self getTitleOfPost:self.categoryPosts];
+    self.categoryImagePost = [self getImage:self.categoryPosts];
+    self.categoryInfoPost = [self getInfoPost:self.categoryPosts];
+    self.categoryCommCountPost = [self getCommPost:self.categoryPosts];
     return self.categoryPosts;
 }
 
+
+-(NSArray *)getPostWithId:(NSArray *)arrayOfId
+{
+    self.postFromID = [NSMutableArray array];
+    for(int i = 0; i < [arrayOfId count]; i++)
+    {
+        self.json = [NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://%@/api/get_post/?id=%@", self.urlSite, [arrayOfId objectAtIndex:i]]]] options:NSJSONReadingAllowFragments error:nil];
+        self.post = [self.json objectForKey:@"post"];
+        [self.postFromID addObject:self.post];
+    }
+    return self.postFromID;
+}
 // Return an array of post ID
 
 -(NSMutableArray *)getID
@@ -170,6 +150,48 @@
     NSDictionary *imageInfos = [sizeImage objectForKey:@"thumbnail"];
     self.urlImage = [imageInfos objectForKey:@"url"];
     return self.urlImage;
+}
+
+- (NSArray*)getArrayCountPost:(NSArray *)post
+{
+    self.json = [NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://www.spi0n.com/api/%@", kJSONParserCommandGetIndex]]] options:0 error:nil];
+    NSArray *categoryInfos = [self.json objectForKey:@"categories"];
+    NSMutableArray *countMut = [[NSMutableArray alloc] init];
+    for(int i = 0; i < [categoryInfos count]; i++)
+    {
+    NSDictionary *idCategory = [categoryInfos objectAtIndex:i];
+    [countMut addObject:[idCategory objectForKey:@"post_count"]];
+    }
+    self.arrayCount = countMut;
+    return self.arrayCount;
+}
+
+-(NSArray *)getImage:(NSArray *)post
+{
+    [self.imageArray removeAllObjects];
+    self.imageArray = [NSMutableArray array];
+    for(int i = 0; i < [post count]; i++)
+    {
+        NSDictionary *postOfImage = [post objectAtIndex:i];
+        self.urlImage = [postOfImage objectForKey:@"thumbnail"];
+        UIImage *image = [UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:self.urlImage]]];
+        if(image != nil)
+        {
+            [self.imageArray addObject:image];
+        }
+        else {
+            UIImage *imageEmpty = [UIImage imageNamed:@"home"];
+            [self.imageArray addObject:imageEmpty];
+        }
+    }
+    return self.imageArray;
+}
+
+-(UIImage *)getImageOfPost:(NSDictionary *)post
+{
+    NSString *url = [post objectForKey:@"thumbnail"];
+    UIImage *image = [UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:url]]];
+    return image;
 }
 
 // If your article contain some video, this method will get it
@@ -207,15 +229,6 @@
     return self.contentOfPost;
 }
 
-// Return the content of your post
-
--(NSString *)getContentOfPost:(NSInteger)index
-{
-    [self getPostContent];
-    NSString *content = [self.contentOfPost objectAtIndex:index];
-    return content;
-}
-
 // Return the author
 
 -(NSString *)getAuthorOfPost
@@ -227,10 +240,32 @@
 
 // Return title of post
 
--(NSString *)getTitlePost
+-(NSArray *)getTitlePost:(NSArray *)post
 {
-    self.authorPost = [self.article objectForKey:@"title"];
-    return self.authorPost;
+    [self.titleArray removeAllObjects];
+    self.titleArray = [NSMutableArray array];
+    for(int i = 0; i < [self.post count]; i++)
+    {
+        self.article = [self.post objectAtIndex:i];
+        NSString *titre = [self.article objectForKey:@"title"];
+        self.titlePost = [titre stringByReplacingOccurrencesOfString:@"&rsquo;" withString:@"'"];
+        [self.titleArray addObject:self.titlePost];
+    }
+    return self.titleArray;
+}
+
+-(NSArray *)getTitleOfPost:(NSArray *)post
+{
+    [self.titleArray removeAllObjects];
+    self.titleArray = [NSMutableArray array];
+    for(int i= 0; i < [post count]; i++)
+    {
+        self.article = [post objectAtIndex:i];
+        NSString *titre = [self.article objectForKey:@"title"];
+        self.titlePost = [titre stringByReplacingOccurrencesOfString:@"&rsquo;" withString:@"'"];
+        [self.titleArray addObject:self.titlePost];
+    }
+    return self.titleArray;
 }
 
 // Return description
@@ -253,22 +288,98 @@
     return arrayOfDescription;
 }
 
+-(NSArray *)getDescriptionOfPost:(NSArray *)post
+{
+    NSMutableArray *arrayOfDescription = [NSMutableArray array];
+    for(int i = 0; i < [post count]; i++)
+    {
+        self.article = [post objectAtIndex:i];
+        self.descriptionArticle = [self.article objectForKey:@"excerpt"];
+        NSString *regexStr = @"<a ([^>]+)>([^>]+)</a>";
+        NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:regexStr options:NSRegularExpressionCaseInsensitive error:nil];
+        self.descriptionArticle = [regex stringByReplacingMatchesInString:self.descriptionArticle options:0 range:NSMakeRange(0, [self.descriptionArticle length]) withTemplate:@"$2"];
+        NSString *textWithoutStrong = [self.descriptionArticle stringByReplacingOccurrencesOfString:@"<strong>" withString:@""];
+        NSString *textWithoutStrongEnd = [textWithoutStrong stringByReplacingOccurrencesOfString:@"</strong>" withString:@""];
+        self.descriptionArticle = textWithoutStrongEnd;
+        [arrayOfDescription addObject:self.descriptionArticle];
+    }
+    return arrayOfDescription;
+
+}
+
+- (NSArray*)getInfoPost:(NSArray*)post
+{
+    _infoArray = [NSMutableArray array];
+    for (int i = 0; i < [post count]; i++)
+    {
+        self.article = [post objectAtIndex:i];
+        NSString *author = [[self.article objectForKey:@"author"] objectForKey:@"nickname"];
+        NSString *date = [self.article objectForKey:@"modified"];
+        self.infoPost = [NSString stringWithFormat:@"Par %@ le %@", author, date];
+        
+        [_infoArray addObject:self.infoPost];
+    }
+    
+    return _infoArray;
+}
+
+- (NSArray*)getCommPost:(NSArray*)post
+{
+    NSMutableArray *commArray = [[NSMutableArray alloc] init];
+    for (int i = 0; i < [post count]; i++)
+    {
+        self.article = [post objectAtIndex:i];
+        self.commPost = [[self.article objectForKey:@"comment_count"] stringValue];
+        
+        [commArray addObject:self.commPost];
+    }
+    
+    return commArray;
+}
+
 // Get comment
 
--(NSArray *)getCommentOfPost
+-(NSArray *)getCommentOfPost:(NSDictionary *)post
 {
-    self.commentArray = [self.article objectForKey:@"comments"];
+    self.commentArray = [NSMutableArray array];
+    self.authorOfComment = [NSMutableArray array];
+    NSArray *arrayOfComments = [post valueForKey:@"comments"];
+    for(int i = 0; i < [arrayOfComments count]; i++)
+    {
+        NSDictionary *textComment = [arrayOfComments objectAtIndex:i];
+        NSString *beginCommentaire = [textComment valueForKey:@"content"];
+        NSString *name = [textComment valueForKey:@"name"];
+        NSString *removeBalise = [beginCommentaire stringByReplacingOccurrencesOfString:@"<p>" withString:@""];
+        NSString *removeEndBalise = [removeBalise stringByReplacingOccurrencesOfString:@"</p>" withString:@""];
+        NSString *commentaire = [removeEndBalise stringByReplacingOccurrencesOfString:@"&rsquo;" withString:@"'"];
+        [self.commentArray addObject:commentaire];
+        [self.authorOfComment addObject:name];
+    }
     return self.commentArray;
 }
 
 // TO DO 
 
-//-(void)postCommentWithName:(NSString *)author mail:(NSString *)email content:(NSString *)content host:(NSString *)url id:(NSInteger)index
-//{
-//    NSInteger idPost = [[self.postID objectAtIndex:index] integerValue];
-//    NSURL *urlString = [NSURL URLWithString:[NSString stringWithFormat:@"http://%@/api/submit_comment?post_id=%i?name=%@?email=%@,content=%@", url, idPost, author, email, content]];
-//    NSURLRequest *postComment = [NSURLRequest requestWithURL:urlString];
-//    NSURLConnection *connect = [NSURLConnection connectionWithRequest:postComment delegate:self];
-//}
+-(void)postCommentOnArticle:(NSString *)articleID withName:(NSString *)author mail:(NSString *)email content:(NSString *)content host:(NSString *)url
+{
+    NSURL *urlRequest = [NSURL URLWithString:[NSString stringWithFormat:@"http://%@", url]];
+    NSDictionary *parameters = @{@"post_id": articleID,
+                                 @"name" : author,
+                                 @"email" : email,
+                                 @"content" : content
+                                 };
+    httpClient = [[AFHTTPClient alloc] initWithBaseURL:urlRequest];
+    [httpClient postPath:@"/api/submit_comment/" parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject){
+        NSDictionary *response = [NSJSONSerialization JSONObjectWithData:(NSData *)responseObject options:NSJSONReadingAllowFragments error:nil];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.postCommentReturn = [response valueForKey:@"status"];
+            if([self.postCommentReturn isEqualToString:@"error"])
+            {
+                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Erreur" message:[response valueForKey:@"error"] delegate:self cancelButtonTitle:@"Fermer" otherButtonTitles:nil, nil];
+                [alert show];
+            }
+        });
+    }failure:nil];
+}
 
 @end
